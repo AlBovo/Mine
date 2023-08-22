@@ -48,13 +48,14 @@ void player::generator(int x_p, int y_p){ // first choice of the player
 /*      END GENERATOR OF THE MATRIX     */
 
 /*      PRINT MATRIX FUNCTION       */
-void player::print_matrix(){
+void player::print_matrix(bool lost = false){
     for(int i = 0; i < SIZE; i++){
         for(int e = 0; e < SIZE; e++){
-            if(this->discovered[i][e])
-                std::cout << this->matrix[i][e] << " ";
+            if(this->discovered[i][e] || lost)
+                print_with_color(((this->matrix[i][e] != -1) ? '0' + this->matrix[i][e] : 'B'));
             else
-                std::cout << "X ";
+                print_with_color('X');
+            std::cout << " ";
         }
         std::cout << std::endl;
     }
@@ -66,7 +67,7 @@ void player::discover_if_empty(int x, int y){
     if(this->discovered[x][y])
         return;
     if(this->matrix[x][y] == 0){
-        discovered_number++;
+        this->discovered_number++;
         this->discovered[x][y] = 1;
         if(x > 0)
             discover_if_empty(x-1, y);
@@ -88,7 +89,7 @@ void player::discover_if_empty(int x, int y){
     }
     else if(this->matrix[x][y] > 0){
         this->discovered[x][y] = 1;
-        discovered_number++;
+        this->discovered_number++;
     }
 }
 /*      END DISCOVER IF EMPTY FUNCTION      */
@@ -106,11 +107,11 @@ void player::initalize_matrix(){
 
 /*      GAME FUNCTION     */
 void player::start_game(){
-    int discovered_number = 0;
+    this->discovered_number = 0;
     // Initizalize matrix and discovered with 0
     this->initalize_matrix();
 
-    while(discovered_number < (SIZE*SIZE)-NUMBER_OF_MINES){
+    while(this->discovered_number < (SIZE*SIZE)-NUMBER_OF_MINES){
         int x = -1, y = -1;
         std::string x_buffer, y_buffer;
         
@@ -143,7 +144,7 @@ void player::start_game(){
                 std::cout << "Invalid coordinates" << std::endl;
             }
         }
-        if(discovered_number == 0)
+        if(this->discovered_number == 0)
             this->generator(x, y);
 
         if(this->matrix[x][y] == -1){
@@ -156,13 +157,13 @@ void player::start_game(){
         }
         else{
             this->discovered[x][y] = 1;
-            discovered_number++;
+            this->discovered_number++;
         }
     }
     
-    this->print_matrix();
+    this->print_matrix(true);
 
-    if(discovered_number == (SIZE*SIZE)-NUMBER_OF_MINES)
+    if(this->discovered_number == (SIZE*SIZE)-NUMBER_OF_MINES)
         std::cout << "[+] ***** You won! ****** [+]" << std::endl;
 }
 /*      END START THE GAME FUNCTION     */

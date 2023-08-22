@@ -11,6 +11,8 @@
 #include <array>
 #include <random>
 
+#include "colors.hpp"
+
 class player{
 private:
     std::string name; // name of the player
@@ -26,7 +28,7 @@ private:
 
 public:
     player(std::string name);
-    void print_matrix();
+    void print_matrix(bool lost);
     void start_game();
 };
 
