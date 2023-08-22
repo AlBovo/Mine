@@ -1,31 +1,29 @@
 #include "utils.hpp"
 
-player::player(std::string name){
+player::player(std::string name) : dist(0, SIZE-1){
     this->name = name;
+    std::random_device rd;
+    this->rng = std::mt19937(rd());
 }
 
 /*      GENERATOR OF THE MATRIX     */
-void player::generator(){
+void player::generator(int x_p, int y_p){ // first choice of the player
     std::array<std::pair<int, int>, NUMBER_OF_MINES> mines;
-
-    // Initizalize matrix and discovered with 0
-    for(int i = 0; i < SIZE; i++){
-        for(int e = 0; e < SIZE; e++){
-            this->matrix[i][e] = 0;
-            this->discovered[i][e] = 0;
-        }
-    }
+    this->matrix[x_p][y_p] = -1;
 
     for(int i = 0; i < NUMBER_OF_MINES; i++){
         int x, y;
         do{
-            x = rand() % SIZE;
-            y = rand() % SIZE;
+            
+            x = dist(rng);
+            y = dist(rng);
         }while(this->matrix[x][y] == -1);
 
         this->matrix[x][y] = -1;
         mines[i] = {x, y};
     }
+
+    this->matrix[x_p][y_p] = 0;
     
     for(auto &i : mines){        
         if(i.first > 0 && matrix[i.first-1][i.second] != -1)
@@ -95,15 +93,27 @@ void player::discover_if_empty(int x, int y){
 }
 /*      END DISCOVER IF EMPTY FUNCTION      */
 
+/*      INIZIALIZE MATRIX FUNCTION     */
+void player::initalize_matrix(){
+    for(int i = 0; i < SIZE; i++){
+        for(int e = 0; e < SIZE; e++){
+            this->matrix[i][e] = 0;
+            this->discovered[i][e] = 0;
+        }
+    }
+}
+/*      END INIZIALIZE MATRIX FUNCTION     */
+
 /*      GAME FUNCTION     */
 void player::start_game(){
     int discovered_number = 0;
-    this->generator();
-        
+    // Initizalize matrix and discovered with 0
+    this->initalize_matrix();
+
     while(discovered_number < (SIZE*SIZE)-NUMBER_OF_MINES){
         int x = -1, y = -1;
         std::string x_buffer, y_buffer;
-
+        
         this->print_matrix();
 
         while(x < 0 || x > SIZE-1 || y < 0 || y > SIZE-1){
@@ -116,8 +126,8 @@ void player::start_game(){
             }
             
             try{
-                y = std::stoi(x_buffer);
-                x = std::stoi(y_buffer);
+                y = std::stoi(x_buffer) - 1;
+                x = std::stoi(y_buffer) - 1;
             } catch(std::invalid_argument){
                 std::cout << "Invalid coordinates" << std::endl;
                 continue;
@@ -133,6 +143,8 @@ void player::start_game(){
                 std::cout << "Invalid coordinates" << std::endl;
             }
         }
+        if(discovered_number == 0)
+            this->generator(x, y);
 
         if(this->matrix[x][y] == -1){
             std::cout << "[+] ***** You lost! ****** [+]" << std::endl;

@@ -9,15 +9,19 @@
 #include <utility>
 #include <assert.h>
 #include <array>
+#include <random>
 
 class player{
 private:
     std::string name; // name of the player
     int discovered_number; // number of discovered cells
-    int matrix[SIZE][SIZE]; // matrix of the game
-    bool discovered[SIZE][SIZE]; // matrix of discovered cells
+    std::mt19937 rng; // random number generator
+    std::array<std::array<int, SIZE>, SIZE> matrix; // matrix of the game
+    std::array<std::array<int, SIZE>, SIZE> discovered; // matrix of discovered cells
+    std::uniform_int_distribution<> dist; // distribution of the random number generator
 
-    void generator();
+    void initalize_matrix();
+    void generator(int x, int y);
     void discover_if_empty(int x, int y);
 
 public:
