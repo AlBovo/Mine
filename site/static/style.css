@@ -1,0 +1,44 @@
+button.red{
+    border-color: red;
+    background-color: red;
+}
+
+button.green{
+    border-color: green;
+    background-color: green;
+}
+
+button.yellow{
+    border-color: yellow;
+    background-color: yellow;
+}
+
+button.lightblue{
+    border-color: lightblue;
+    background-color: lightblue;
+}
+
+button.magenta{
+    border-color: magenta;
+    background-color: magenta;
+}
+
+button.cyan{
+    border-color: cyan;
+    background-color: cyan;
+}
+
+button.white{
+    border-color: white;
+    background-color: white;
+}
+
+button.purple{
+    border-color: purple;
+    background-color: purple;
+}
+
+button.orange{
+    border-color: orange;
+    background-color: orange;
+}

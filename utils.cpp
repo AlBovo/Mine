@@ -134,14 +134,14 @@ void player::start_game(){
                 continue;
             }
             
+            if(x < 0 || x > SIZE-1 || y < 0 || y > SIZE-1){
+                std::cout << "Invalid coordinates" << std::endl;
+            }
+
             if(discovered[x][y]){
                 std::cout << "You already discovered this coordinate" << std::endl;
                 x = y = -1;
                 continue;
-            }
-
-            if(x < 0 || x > SIZE-1 || y < 0 || y > SIZE-1){
-                std::cout << "Invalid coordinates" << std::endl;
             }
         }
         if(this->discovered_number == 0)
