@@ -8,14 +8,14 @@ button.green{
     background-color: green;
 }
 
-button.yellow{
-    border-color: yellow;
-    background-color: yellow;
+button.orangered{
+    border-color: orangered;
+    background-color: orangered;
 }
 
-button.lightblue{
-    border-color: lightblue;
-    background-color: lightblue;
+button.violet{
+    border-color: violet;
+    background-color: violet;
 }
 
 button.magenta{
@@ -23,14 +23,14 @@ button.magenta{
     background-color: magenta;
 }
 
-button.cyan{
-    border-color: cyan;
-    background-color: cyan;
+button.deeppink{
+    border-color: deeppink;
+    background-color: deeppink;
 }
 
-button.white{
-    border-color: white;
-    background-color: white;
+button.forestgreen{
+    border-color: forestgreen;
+    background-color: forestgreen;
 }
 
 button.purple{
@@ -41,4 +41,14 @@ button.purple{
 button.orange{
     border-color: orange;
     background-color: orange;
+}
+
+button.black{
+    border-color: black;
+    background-color: black;
+}
+
+button.grey{
+    border-color: grey;
+    background-color: grey;
 }

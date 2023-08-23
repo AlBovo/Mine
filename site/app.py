@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, request, jsonify, make_response, redirect
+from flask import Flask, render_template, request, jsonify, make_response
+from apscheduler.schedulers.background import BackgroundScheduler
 from functools import wraps
 import uuid, jwt, random
 
@@ -10,16 +11,22 @@ TOTAL_MINES = (SIZE*SIZE) // 8
 COLORS = {
     '0' : 'orange',
     '1' : 'purple',
-    '2' : 'green',
+    '2' : 'forestgreen',
     '3' : 'red',
-    '4' : 'yellow',
-    '5' : 'lightblue',
-    '6' : 'cyan',
+    '4' : 'orangered',
+    '5' : 'violet',
+    '6' : 'deeppink',
     '7' : 'magenta',
-    '8' : 'white',
+    '8' : 'green',
+    'B' : 'black',
     'X' : ''
 }
+
 matches = {}
+scheduler = BackgroundScheduler()
+
+def clear_matches():
+    matches.clear()
 
 def generator_matrix() -> list[list[int]]:
     matrix = [[0 for e in range(SIZE)] for i in range(SIZE)]
@@ -52,22 +59,13 @@ def generator_matrix() -> list[list[int]]:
 
     return matrix
 
-def viewed_matrix(user: str) -> list[list[str]]:
-    final_matrix = [['X' for e in range(SIZE)] for i in range(SIZE)]
-
-    for i in range(SIZE):
-        for e in range(SIZE):
-            if matches[user][1][i][e]:
-                final_matrix[i][e] = str(matches[user][0][i][e])
-    return final_matrix
-
 def discover_if_empty(user: str, x: int, y: int):
     discovered = matches[user][1]
     matrix = matches[user][0]
-    if discovered[x][y]:
+    if discovered[x][y] not in ['X', 'B']:
         return 
     if matrix[x][y] == 0:
-        discovered[x][y] = True # discovered
+        discovered[x][y] = str(matrix[x][y])
         matches[user][2] += 1
         if x > 0:
             discover_if_empty(user, x-1, y)
@@ -88,7 +86,7 @@ def discover_if_empty(user: str, x: int, y: int):
             discover_if_empty(user, x+1, y-1)
 
     elif matrix[x][y] != -1:
-        discovered[x][y] = True
+        discovered[x][y] = str(matrix[x][y])
         matches[user][2] += 1
     
 
@@ -113,12 +111,12 @@ def index():
             user = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])["userID"]
         except:
             raise Exception
-        return render_template('index.html', matrix=viewed_matrix(user), len=SIZE, colors=COLORS)
+        return render_template('index.html', matrix=matches[user][1], colors=COLORS)
     except:
         token = str(uuid.uuid4())
         jwtEnc = jwt.encode({'userID': token}, SECRET_KEY, algorithm='HS256')
-        response = make_response(render_template('index.html', matrix=[['X' for e in range(SIZE)] for i in range(SIZE)], len=SIZE, colors=COLORS))
-        matches[token] = [generator_matrix(), [[False for e in range(SIZE)] for i in range(SIZE)], 0] # matrix, discovered, total_discovered
+        response = make_response(render_template('index.html', matrix=[['X' for e in range(SIZE)] for i in range(SIZE)], colors=COLORS))
+        matches[token] = [generator_matrix(), [['X' for e in range(SIZE)] for i in range(SIZE)], 0] # matrix, discovered, total_discovered
         response.set_cookie('session', jwtEnc)
         return response
 
@@ -143,16 +141,21 @@ def api(user, x, y):
         return jsonify({'message': 'Invalid coordinates'}), 401
     
     if matrix[x][y] == -1:
-        matches.pop(user)
+        for i in range(SIZE):
+            for j in range(SIZE):
+                if matrix[i][j] == -1:
+                    discovered[i][j] = 'B'
+                else:
+                    discovered[i][j] = str(matrix[i][j])
         return jsonify({'message': 'You lost'}), 202
 
-    if discovered[x][y]:
+    if discovered[x][y] not in ['X', 'B']:
         return jsonify({'message': 'Already discovered'}), 401
     
     if matrix[x][y] == 0:
         discover_if_empty(user, x, y)
     else:
-        discovered[x][y] = True
+        discovered[x][y] = str(matches[user][0][x][y])
         matches[user][2] += 1
     
     if matches[user][2] == (SIZE*SIZE)-TOTAL_MINES:
@@ -161,5 +164,37 @@ def api(user, x, y):
 
     return jsonify({'message': 'OK'}), 200
 
+@app.route('/api/addflag/<x>/<y>', methods=['POST'])
+@get_token
+def add_flag(user, x, y):
+    try:
+        x = int(x)
+        y = int(y)
+    except:
+        return jsonify({'message': 'Invalid coordinates'}), 401
+
+    user = str(user)
+    discovered = matches[user][1]
+
+    if x < 0 or x >= SIZE or y < 0 or y >= SIZE:
+        return jsonify({'message': 'Invalid coordinates'}), 401
+    
+    if discovered[x][y] != 'X':
+        return jsonify({'message': 'Already discovered'}), 401
+    
+    discovered[x][y] = 'B'
+    return jsonify({'message': 'OK'}), 200
+
+@app.route('/api/clear', methods=['POST'])
+@get_token
+def clear(user):
+    user = str(user)
+    try:
+        matches.pop(user)
+        return jsonify({'message': 'OK'}), 200
+    except:
+        return jsonify({'message': 'Invalid session cookie'}), 401
+
 if __name__ == '__main__':
+    # scheduler.add_job(clear_matches, 'interval', minutes=10) TODO: clear unused matches
     app.run("0.0.0.0", 8080, debug=True)
