@@ -1,35 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Mine Game</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-        <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
-        <link href="{{ url_for('static', filename='favicon.ico') }}" rel="icon" type="image/x-icon">
-    </head>
-    <body>
-        <div class="text-center" style="padding: 40px;">
-            <h1>Mine Game</h1>
-        </div>
-        <div class="alert alert-danger" role="alert" hidden="true" style="margin-left: 30%; margin-right: 30%; margin-bottom: 2.5%">
-            
-        </div>
-        <table class="d-flex justify-content-center">
-            {% for i in range(matrix|length) %}
-                <tr>
-                {% for e in range(matrix|length) %}
-                    <td>
-                        <button name="button" class="{{ colors[matrix[i][e]] }} btn btn-primary" onclick="onButtonClick('{{i}}', '{{e}}')" oncontextmenu="addFlag('{{i}}', '{{e}}')">{{ matrix[i][e] }}</button>
-                    </td>
-                {% endfor %}
-                </tr>
-            {% endfor %}
-        </table>
-        <div class="d-flex justify-content-center" style="margin: 50px;">
-            <button class="red btn btn-primary" onclick="clearSession()" style="margin: 30px">Restart</button>
-            <button class="green btn btn-primary" onclick="window.location.reload()" style="margin: 30px">Show Solution</button>
-        </div>
-        <script src="{{ url_for('static', filename='script.js') }}"></script>
-    </body>
-</html>
+{% extends "template.html" %}
+{% block content %}
+<div class="text-center" style="padding: 40px;">
+    <h1>Mine Game</h1>
+</div>
+<table class="d-flex justify-content-center">
+    {% for i in range(matrix|length) %}
+        <tr>
+        {% for e in range(matrix|length) %}
+            <td>
+                <button name="button" class="{{ colors[matrix[i][e]] }} btn btn-primary" onclick="onButtonClick('{{i}}', '{{e}}')" oncontextmenu="addFlag('{{i}}', '{{e}}'); return false">{{ matrix[i][e] }}</button>
+            </td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}

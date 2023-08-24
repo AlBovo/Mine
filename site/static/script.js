@@ -41,6 +41,7 @@ async function onButtonClick(x, y){
             document.querySelector(".alert").hidden = false;
             document.querySelector(".alert").className = "text-center alert alert-success";
             document.querySelector(".alert").innerHTML = "You won";
+            document.getElementById("scoreboard").hidden = false;
         }
         else if(data.message == "OK"){
             window.location.reload();

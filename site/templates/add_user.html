@@ -1,0 +1,21 @@
+{% extends 'template.html' %}
+{% block content %}
+    <div class="text-center" style="padding: 40px;">
+        <h1>Scoreboard</h1>
+    </div>
+    {% if error %}
+    <div class="alert alert-danger" role="alert" style="margin-left: 30%; margin-right: 30%; margin-bottom: 2.5%">
+        {{ error }}
+    </div>
+    {% endif %}
+    <div class="container">
+        <form action="/api/scoreboard" method="POST">
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Username</label>
+                <input type="text" placeholder="username" name="username">
+                <div id="emailHelp" class="form-text">You can only use letters, numbers and undescores.</div>
+              </div>            
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+{% endblock %}
