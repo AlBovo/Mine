@@ -25,6 +25,17 @@ async function clearSession(){
         return response.json();
     });
 }
+
+async function showSolutions(){
+    await fetch("/api/show", {
+        "method": "POST"
+    }).then(response => {
+        console.log(response.status);
+        window.location.reload();
+        return response.json();
+    });
+}
+
 async function onButtonClick(x, y){
     await fetch("/api/" + x + "/" + y, {
         "method": "POST"

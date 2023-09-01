@@ -262,17 +262,15 @@ def clear(user: str):
 @app.route('/api/scoreboard', methods=['POST'])
 @get_token
 def scoreboard(user: str):
-    '''
     if matches[user][2] != (SIZE*SIZE)-TOTAL_MINES:
         return render_template('add_user.html', error='You must win the game to submit your score')
-    '''
     
-    username = str(request.form['username'])
+    username = str(request.form['username']).strip()
     print(username)
     if not username:
         return render_template('add_user.html', error='You must insert a username')
 
-    if re.match(r'[^a-zA-Z0-9_\-]*?', username):
+    if len(re.findall(r'[a-zA-Z0-9_\-]', username)) < len(username):
         return render_template('add_user.html', error='Invalid username')
 
     points = int(time()) - matches[user][4]
@@ -281,6 +279,19 @@ def scoreboard(user: str):
 
     scoardboard.sort(key=lambda x: x[0])
     return redirect('/scoreboard')
+
+@app.route('/api/show', methods=['POST'])
+@get_token
+def show(user: str):
+    matrix = matches[user][0]
+    discovered = matches[user][1]
+    for i in range(SIZE):
+        for j in range(SIZE):
+            if matrix[i][j] == -1:
+                discovered[i][j] = 'B'
+            else:
+                discovered[i][j] = str(matrix[i][j])
+    return redirect('/')
 
 if __name__ == '__main__':
     scheduler.add_job(save_scoardboard, 'interval', minutes=10)

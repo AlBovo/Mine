@@ -3,6 +3,7 @@
 <div class="text-center" style="padding: 40px;">
     <h1>Mine Game</h1>
 </div>
+<div class="alert alert-danger" role="alert" hidden="true" style="margin-left: 30%; margin-right: 30%; margin-bottom: 2.5%"></div>
 <table class="d-flex justify-content-center">
     {% for i in range(matrix|length) %}
         <tr>
@@ -14,5 +15,9 @@
         </tr>
     {% endfor %}
 </table>
+<div class="d-flex justify-content-center" style="margin: 50px;">
+    <button class="red btn btn-primary" onclick="clearSession()" style="margin: 30px">Restart</button>
+    <button class="green btn btn-primary" onclick="showSolutions()" style="margin: 30px">Show Solution</button>
+</div>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 {% endblock %}
