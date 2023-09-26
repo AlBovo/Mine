@@ -4,12 +4,12 @@
 ChatGPT.
 
 ## How to play 🎮
-To play the terminal version, you need to compile the source code or download the release (see [installation](#install-📦)), execute it, and follow the prompts until it requests you to uncover a square.
+To play the terminal version, you need to compile the source code or download the release (see [installation](#install-)), execute it, and follow the prompts until it requests you to uncover a square.
 This request will specify coordinates X Y (e.g., 1 4), starting from 1 and going up to 16. 
 To play on the web, simply right-click to flag a selected square as a bomb, and use the left-click to reveal it.
 
 ## Install 📦
-In this repository, there are two types of software, one for the [terminal](#terminal-💻) and the other with a [web-based GUI](#web-gui-🌐).
+In this repository, there are two types of software, one for the [terminal](#terminal-) and the other with a [web-based GUI](#web-gui-).
 
 ### Terminal 💻
 At the moment I am writing this, Mine for the terminal is only tested on Linux using g++20. The commands to compile it are as follows:
