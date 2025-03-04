@@ -1,5 +1,5 @@
 async function addFlag(x, y){
-    await fetch("/api/addflag/"+ x + "/" + y, {
+    await fetch(`/api/addflag/${x}/${y}`, {
         "method": "POST"
     }).then(response => {
         console.log(response.status);
@@ -37,7 +37,7 @@ async function showSolutions(){
 }
 
 async function onButtonClick(x, y){
-    await fetch("/api/" + x + "/" + y, {
+    await fetch(`/api/${x}/${y}`, {
         "method": "POST"
     }).then(response => {
         console.log(response.status);

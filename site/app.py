@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, request, jsonify, make_response, redirect
+from flask import Flask, render_template, request, jsonify, redirect, session
 from apscheduler.schedulers.background import BackgroundScheduler
 from time import time
 from datetime import timedelta
 from functools import wraps
-import uuid, jwt, random, json, re
+import uuid, random, json, re, os
 
 app = Flask(__name__)
-SECRET_KEY = str(uuid.uuid4())
-SIZE = 16
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', str(uuid.uuid4()))
+SIZE = os.getenv('SIZE', 16)
 TOTAL_MINES = (SIZE*SIZE) // 8
 COLORS = {
     '0' : 'orange',
@@ -31,7 +31,6 @@ except:
     scoardboard = []
 
 matches = {}
-scheduler = BackgroundScheduler()
 
 def save_scoardboard():
     print("Saving scoreboard...")
@@ -45,6 +44,8 @@ def save_scoardboard():
     for user in copy:
         matches.pop(user)
     
+scheduler = BackgroundScheduler()
+scheduler.add_job(save_scoardboard, 'interval', minutes=10)
 
 def generator_matrix() -> list[list[int]]:
     matrix = [[0 for e in range(SIZE)] for i in range(SIZE)]
@@ -107,62 +108,27 @@ def discover_if_empty(user: str, x: int, y: int):
         discovered[x][y] = str(matrix[x][y])
         matches[user][2] += 1
     
-
 def get_token(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.cookies['session']
-        if not token:
+        if 'session' not in session:
             token = str(uuid.uuid4())
-            jwtEnc = jwt.encode({'userID': token}, SECRET_KEY, algorithm='HS256')
-            response = make_response(render_template('index.html', matrix=[['X' for e in range(SIZE)] for i in range(SIZE)], colors=COLORS))
             matches[token] = [
                 generator_matrix(), # matrix
                 [['X' for e in range(SIZE)] for i in range(SIZE)], # discovered
                 0, # total discovered
                 int(time()), # last activity
                 int(time())] # start time
-            response.set_cookie('session', jwtEnc)
+            session['session'] = token
             return redirect('/')
-        try:
-            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        except:
-            token = str(uuid.uuid4())
-            jwtEnc = jwt.encode({'userID': token}, SECRET_KEY, algorithm='HS256')
-            response = make_response(render_template('index.html', matrix=[['X' for e in range(SIZE)] for i in range(SIZE)], colors=COLORS))
-            matches[token] = [
-                generator_matrix(), # matrix
-                [['X' for e in range(SIZE)] for i in range(SIZE)], # discovered
-                0, # total discovered
-                int(time()), # last activity
-                int(time())] # start time
-            response.set_cookie('session', jwtEnc)
-            return redirect('/')
-        return f(data["userID"], *args, **kwargs)
+        return f(session['session'], *args, **kwargs)
     return decorated
 
 @app.route('/', methods=['GET'])
-def index():
-    try:
-        token = request.cookies['session']
-        try:
-            user = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])["userID"]
-        except:
-            raise Exception
-        matches[user][3] = int(time())
-        return render_template('index.html', matrix=matches[user][1], colors=COLORS)
-    except:
-        token = str(uuid.uuid4())
-        jwtEnc = jwt.encode({'userID': token}, SECRET_KEY, algorithm='HS256')
-        response = make_response(render_template('index.html', matrix=[['X' for e in range(SIZE)] for i in range(SIZE)], colors=COLORS))
-        matches[token] = [
-            generator_matrix(), # matrix
-            [['X' for e in range(SIZE)] for i in range(SIZE)], # discovered
-            0, # total discovered
-            int(time()), # last activity
-            int(time())] # start time
-        response.set_cookie('session', jwtEnc)
-        return response
+@get_token
+def index(token):
+    matches[token][3] = int(time())
+    return render_template('index.html', matrix=matches[token][1], colors=COLORS)
 
 @app.route('/about', methods=['GET'])
 def about():
@@ -180,14 +146,14 @@ def show_scoreboard():
 def add_user():
     return render_template('add_user.html')
 
-@app.route('/api/<x>/<y>', methods=['POST'])
+@app.route('/api/<int:x>/<int:y>', methods=['POST'])
 @get_token
-def api(user: str, x: str, y: str):
-    if x.isdigit() and y.isdigit():
-        x = int(x)
-        y = int(y)
-    else:
-        return jsonify({'message': 'Invalid coordinates'}), 401
+def api(user: str, x: int, y: int):
+    # if x.isdigit() and y.isdigit():
+    #     x = int(x)
+    #     y = int(y)
+    # else:
+    #     return jsonify({'message': 'Invalid coordinates'}), 401
     
     matrix = matches[user][0].copy()
     discovered = matches[user][1]
@@ -292,8 +258,3 @@ def show(user: str):
             else:
                 discovered[i][j] = str(matrix[i][j])
     return redirect('/')
-
-if __name__ == '__main__':
-    scheduler.add_job(save_scoardboard, 'interval', minutes=10)
-    print(SECRET_KEY)
-    app.run("0.0.0.0", 8080, debug=True)

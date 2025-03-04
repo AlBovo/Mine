@@ -35,5 +35,5 @@ docker run mine/mine:latest
 Then Docker will display the local port where the website is being hosted.
 
 ## How does it look like 👀
-<img src="screenWeb.png">
-<img src="screenTerminal.png">
+<img src="images/screenWeb.png">
+<img src="images/screenTerminal.png">
