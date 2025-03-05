@@ -32,6 +32,12 @@ cd Mine/site/
 docker build -t mine/mine:latest .
 docker run mine/mine:latest
 ```
+or
+```bash
+cd Mine/site/
+docker compose up
+```
+
 Then Docker will display the local port where the website is being hosted.
 
 ## How does it look like 👀
